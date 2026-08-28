@@ -2,6 +2,13 @@
 
 实时物理设备数字孪生工作台。项目使用 TypeScript、Three.js 与 iOS 原生能力，将实体手机的姿态和屏幕画面同步到网页中的高精度 3D 模型。
 
+## 演示视频
+
+![AetherTwin Studio 视频封面](docs/demo-cover.png)
+
+- [在小红书观看演示](https://xhslink.cn/o/7vtSA6PxKj0)
+- [在抖音观看演示](https://v.douyin.com/z7jLTIi6Ywo/)
+
 ## 功能
 
 - GLB 手机模型实时渲染与鼠标旋转
