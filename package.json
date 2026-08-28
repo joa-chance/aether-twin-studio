@@ -1,0 +1,14 @@
+{
+  "name": "aether-twin-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "sync": "node sync-server.mjs"
+  },
+  "dependencies": { "three": "^0.179.1" },
+  "devDependencies": { "@types/three": "^0.179.0", "typescript": "^5.9.2", "vite": "^7.1.3" }
+}
