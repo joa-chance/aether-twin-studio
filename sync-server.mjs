@@ -5,6 +5,22 @@ const port = Number(process.env.SYNC_PORT || 8765);
 const token = process.env.SYNC_TOKEN || crypto.randomBytes(12).toString('hex');
 const clients = new Set();
 
+function isPrivateHost(value = '') {
+  const host = value.replace(/^::ffff:/, '');
+  if (host === '127.0.0.1' || host === '::1' || host === 'localhost') return true;
+  if (/^10\./.test(host) || /^192\.168\./.test(host)) return true;
+  const match = host.match(/^172\.(\d+)\./);
+  return Boolean(match && Number(match[1]) >= 16 && Number(match[1]) <= 31);
+}
+
+function allowedOrigin(origin = '') {
+  if (!origin) return '*';
+  try {
+    const url = new URL(origin);
+    return (url.protocol === 'http:' || url.protocol === 'https:') && isPrivateHost(url.hostname) ? origin : '';
+  } catch { return ''; }
+}
+
 function encode(payload, opcode = 1) {
   const body = Buffer.isBuffer(payload) ? payload : Buffer.from(payload);
   let header;
@@ -43,9 +59,14 @@ function broadcast(sender, payload, opcode) {
 
 const server=http.createServer((req,res)=>{
   const remote=req.socket.remoteAddress||'';
-  if(req.url==='/pairing'&&(remote==='127.0.0.1'||remote==='::1'||remote==='::ffff:127.0.0.1')){
-    res.writeHead(200,{'content-type':'application/json','access-control-allow-origin':'http://127.0.0.1:5174'});
+  const origin=allowedOrigin(req.headers.origin);
+  if(req.url==='/pairing'&&isPrivateHost(remote)&&origin){
+    res.writeHead(200,{'content-type':'application/json','access-control-allow-origin':origin,'vary':'Origin'});
     res.end(JSON.stringify({token}));return;
+  }
+  if(req.url==='/pairing'){
+    res.writeHead(403,{'content-type':'application/json'});
+    res.end(JSON.stringify({error:'pairing is limited to private networks'}));return;
   }
   res.writeHead(200,{'content-type':'application/json','access-control-allow-origin':'*'});
   res.end(JSON.stringify({service:'iPhone Twin Relay',clients:clients.size,authentication:'required'}));
